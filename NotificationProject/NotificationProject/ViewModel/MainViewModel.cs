@@ -175,7 +175,6 @@ namespace NotificationProject.ViewModel
             {
                 notification.Application = parsedJson[1];
                 notification.Message = parsedJson[2];
-                DisplayNotif(notification.Application, notification.Message, "notification");
             }
 
 
