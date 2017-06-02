@@ -16,8 +16,8 @@ namespace NotificationProject.ViewModel
         #region constructor
         public SmsViewModel()
         {
-            //TODO enlever bob
-            ButtonCommand = new RelayCommand(o => SendMessage("BOB", PhoneNumber, SelectedDevice.Name, SmsText), n => CanSend());
+            //TODO enlever Desktop
+            ButtonCommand = new RelayCommand(o => SendMessage("Desktop", PhoneNumber, SelectedDevice.Name, SmsText), n => CanSend());
             _devicesController = DevicesController.getInstance();
         }
         #endregion

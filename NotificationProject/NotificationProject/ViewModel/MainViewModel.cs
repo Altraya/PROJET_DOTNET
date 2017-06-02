@@ -136,66 +136,62 @@ namespace NotificationProject.ViewModel
                 file.WriteLine(DateTime.Now.ToString() + "- Message reçu : " + message);
             }*/
 
-            //Conversion et traitement et parsing d'un JSON
-            JObject jsonMessage = JSONHandler.stringToJson(message);
-            string[] parsedJson = JSONHandler.interpretation(jsonMessage);
-            Device device = new Device();
-            //Interprétation du JSON parsé
-            //Demande de connexion
-            if (parsedJson[0].ToLower() == "connection")
+            try
             {
-                connectionReq.Appareil = parsedJson[1];
-                connectionReq.Autor = parsedJson[2];
-                var pairaineKey = parsedJson[2].Split(':');
-                //--Demande d'acceptation de connexion--
-                //TODO: créer une méthode qui gère le choix de l'utilisateur JObject messageToDevice = JSONHandler.messageRetour("connected", connectionReq.Appareil, connectionReq.Autor);
-                if(int.Parse(pairaineKey[2]) == CommunicationService.getInstance().randomSecretNumberAccess)
-                {
-                    device = Devices.Devices.FirstOrDefault(o => o.Name == name);
-                    notification.Application = parsedJson[1];
-                    notification.Message ="demande de connexion"; 
-                    Console.WriteLine("Successfuly connexion !");  
-                } else
-                {
-                    throw new Exception("Wrong PairaineKey");
-                }
 
-            }
+                //Conversion et traitement et parsing d'un JSON
+                JObject jsonMessage = JSONHandler.stringToJson(message);
+                string[] parsedJson = JSONHandler.interpretation(jsonMessage);
+                Device device = new Device();
+                //Interprétation du JSON parsé
+                //Demande de connexion
+                if (parsedJson[0].ToLower() == "connection")
+                {
+                    connectionReq.Appareil = parsedJson[1];
+                    connectionReq.Autor = parsedJson[2];
+                    var pairaineKey = parsedJson[2].Split(':');
+                    //--Demande d'acceptation de connexion--
+                    //TODO: créer une méthode qui gère le choix de l'utilisateur JObject messageToDevice = JSONHandler.messageRetour("connected", connectionReq.Appareil, connectionReq.Autor);
+                    if (int.Parse(pairaineKey[2]) == CommunicationService.getInstance().randomSecretNumberAccess)
+                    {
+                        device = Devices.Devices.FirstOrDefault(o => o.Name == name);
+                        notification.Application = parsedJson[1];
+                        notification.Message = "demande de connexion";
+                        Console.WriteLine("Successfuly connexion !");
+                    }
+                    else
+                    {
+                        throw new Exception("Wrong PairaineKey");
+                    }
+
+                }
                 //Demande de deconnexion
-            else if(parsedJson[0].ToLower() == "disconnection")
-            {
-                JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
-                //--Envoi du message
-                
-                //--Deconnexion de l'appareil--
-
-            }
-                //Reception d'un message
-            else if (parsedJson[0].ToLower() == "notification")
-            {
-                notification.Application = parsedJson[1];
-                notification.Message = parsedJson[2];
-            }
-
-
-
-            // -- TODO : Remove its a test
-            /*Console.WriteLine("Affichage des devices : "); 
-            foreach (Device d in Devices.Devices)
-            {
-                Console.WriteLine("Nom du device : " + d.Name);
-                foreach (Notification n in d.ListMessages)
+                else if (parsedJson[0].ToLower() == "disconnection")
                 {
-                    Console.WriteLine("Message : " + n.Message);
+                    JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
+                    //--Envoi du message
+
+                    //--Deconnexion de l'appareil--
 
                 }
-            }*/
-            // -- 
-            device = Devices.Devices.FirstOrDefault(o => o.Name == name);
-            device.ListMessages.Add(notification);
-            CommunicationViewModel communicationViewModel = (CommunicationViewModel) PageViewModels.FirstOrDefault(o => o.Name == "Communication");
-            communicationViewModel.CommunicationStatus = message;
+                //Reception d'un message
+                else if (parsedJson[0].ToLower() == "notification")
+                {
+                    notification.Application = parsedJson[1];
+                    notification.Message = parsedJson[2];
+                }
 
+                // -- 
+                device = Devices.Devices.FirstOrDefault(o => o.Name == name);
+                device.ListMessages.Add(notification);
+                CommunicationViewModel communicationViewModel = (CommunicationViewModel)PageViewModels.FirstOrDefault(o => o.Name == "Communication");
+                communicationViewModel.CommunicationStatus = message;
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Problem in Callbackafteranalysis in mainviewmodel");
+            }
 
         }
 
