@@ -180,7 +180,8 @@ namespace BusinessLayer
 
         private void ReceiveCallback(IAsyncResult ar) 
         {
-            String str = "";
+            //String str = "";
+            string content = string.Empty;
             string clientIp = "";
             try
             {
@@ -195,7 +196,7 @@ namespace BusinessLayer
                 handler = (Socket)obj[1];
 
                 // Received message 
-                string content = string.Empty;
+                //string content = string.Empty;
 
                 // -- Client ip
                 var sIp = (handler.RemoteEndPoint.ToString().Split(':'))[0];    // -- 
@@ -211,7 +212,7 @@ namespace BusinessLayer
                         bytesRead);
 
                     // Convert byte array to string
-                    str = content.Substring(0, content.LastIndexOf("<Client Quit>"));
+                    //KARA TODO str = content.Substring(0, content.LastIndexOf("<Client Quit>"));
                     // Continues to asynchronously receive data
                     byte[] buffernew = new byte[1024];
                     obj[0] = buffernew;
@@ -224,10 +225,10 @@ namespace BusinessLayer
             }
             catch (Exception exc) { Console.WriteLine("Receivecallback : " + exc); }
 
-            Console.WriteLine("STR : " + str); 
+            Console.WriteLine("STR : " + content); 
             if (callBackAfterAnalysis != null)
             {
-                callBackAfterAnalysis(clientIp, str);   // -- Launch callback 
+                callBackAfterAnalysis(clientIp, content);   // -- Launch callback 
             }
         }
 
