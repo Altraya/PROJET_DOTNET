@@ -16,7 +16,8 @@ namespace NotificationProject.ViewModel
         #region constructor
         public SmsViewModel()
         {
-            ButtonCommand = new RelayCommand(o => SendMessage(), n => CanSend());
+            //TODO enlever bob
+            ButtonCommand = new RelayCommand(o => SendMessage("BOB", PhoneNumber, SelectedDevice.Name, SmsText), n => CanSend());
             _devicesController = DevicesController.getInstance();
         }
         #endregion
@@ -91,9 +92,10 @@ namespace NotificationProject.ViewModel
         }
 
         #region Command
-        private void SendMessage()
+        private void SendMessage(string author, string receiver, string appareil, string message)
         {
-            SelectedDevice.sendMessage(JSONHandler.creationSMSString("bob","test",SelectedDevice.Name,"Test de message"));
+            string messageToSend = JSONHandler.creationSMSString(author, receiver, appareil, message);
+            SelectedDevice.sendMessage(messageToSend);
         }
 
         private bool CanSend()

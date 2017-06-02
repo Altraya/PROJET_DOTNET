@@ -103,7 +103,7 @@ namespace NotificationProject.HelperClasses
         public static string creationSMSString(string author, string receiver, string appareil, string message)
         {
             var dt = DateTime.Now;
-            return @"{type: 'smsToSend', conn: '" + appareil + "',author: '" + author + "', receiver: '" + receiver + "',object: {application: 'SMS App',Message: '" + message + "',heureDate: '" + dt + "'}}";
+            return @"{type: 'smsToSend', conn: '" + appareil + "',author: '" + author + "', receiver: '" + receiver + "',object: {application: 'com.google.android.apps.messaging',Message: '" + message + "',heureDate: '" + dt + "'}}";
         }
     }
 }
