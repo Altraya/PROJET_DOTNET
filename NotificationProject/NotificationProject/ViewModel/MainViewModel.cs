@@ -126,79 +126,82 @@ namespace NotificationProject.ViewModel
 
         public void CallBackAfterAnalysis(String name, String message)
         {
-            //Création des objets vides
-            Notification notification = new Notification("", "");
-            ConnectionRequest connectionReq = new ConnectionRequest("", "");
-
-            /*using (System.IO.StreamWriter file =
-                new System.IO.StreamWriter(@"log.txt", true))
+            try
             {
-                file.WriteLine(DateTime.Now.ToString() + "- Message reçu : " + message);
-            }*/
+                //Création des objets vides
+                Notification notification = new Notification("", "");
+                ConnectionRequest connectionReq = new ConnectionRequest("", "");
 
-            //Conversion et traitement et parsing d'un JSON
-            JObject jsonMessage = JSONHandler.stringToJson(message);
-            string[] parsedJson = JSONHandler.interpretation(jsonMessage);
-            Device device = new Device();
-            Boolean addMessage = false;
-            //Interprétation du JSON parsé
-            //Demande de connexion
-            if (parsedJson[0].ToLower() == "connection")
-            {
+                /*using (System.IO.StreamWriter file =
+                    new System.IO.StreamWriter(@"log.txt", true))
+                {
+                    file.WriteLine(DateTime.Now.ToString() + "- Message reçu : " + message);
+                }*/
 
                 //Conversion et traitement et parsing d'un JSON
                 JObject jsonMessage = JSONHandler.stringToJson(message);
                 string[] parsedJson = JSONHandler.interpretation(jsonMessage);
                 Device device = new Device();
+                Boolean addMessage = false;
                 //Interprétation du JSON parsé
                 //Demande de connexion
                 if (parsedJson[0].ToLower() == "connection")
                 {
-                    connectionReq.Appareil = parsedJson[1];
-                    connectionReq.Autor = parsedJson[2];
-                    var pairaineKey = parsedJson[2].Split(':');
-                    //--Demande d'acceptation de connexion--
-                    //TODO: créer une méthode qui gère le choix de l'utilisateur JObject messageToDevice = JSONHandler.messageRetour("connected", connectionReq.Appareil, connectionReq.Autor);
-                    if (int.Parse(pairaineKey[2]) == CommunicationService.getInstance().randomSecretNumberAccess)
-                    {
-                        device = Devices.Devices.FirstOrDefault(o => o.Name == name);
-                        notification.Application = parsedJson[1];
-                        notification.Message = "demande de connexion";
-                        Console.WriteLine("Successfuly connexion !");
-                    }
-                    else
-                    {
-                        throw new Exception("Wrong PairaineKey");
-                    }
 
+                    //Conversion et traitement et parsing d'un JSON
+                    JObject jsonMessage = JSONHandler.stringToJson(message);
+                    string[] parsedJson = JSONHandler.interpretation(jsonMessage);
+                    Device device = new Device();
+                    //Interprétation du JSON parsé
+                    //Demande de connexion
+                    if (parsedJson[0].ToLower() == "connection")
+                    {
+                        connectionReq.Appareil = parsedJson[1];
+                        connectionReq.Autor = parsedJson[2];
+                        var pairaineKey = parsedJson[2].Split(':');
+                        //--Demande d'acceptation de connexion--
+                        //TODO: créer une méthode qui gère le choix de l'utilisateur JObject messageToDevice = JSONHandler.messageRetour("connected", connectionReq.Appareil, connectionReq.Autor);
+                        if (int.Parse(pairaineKey[2]) == CommunicationService.getInstance().randomSecretNumberAccess)
+                        {
+                            device = Devices.Devices.FirstOrDefault(o => o.Name == name);
+                            notification.Application = parsedJson[1];
+                            notification.Message = "demande de connexion";
+                            Console.WriteLine("Successfuly connexion !");
+                        }
+                        else
+                        {
+                            throw new Exception("Wrong PairaineKey");
+                        }
+
+                    }
+                    //Demande de deconnexion
+                    else if (parsedJson[0].ToLower() == "disconnection")
+                    {
+                        JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
+                        //--Envoi du message
+
+                        //--Deconnexion de l'appareil--
+
+                    }
+                    addMessage = true;
                 }
                 //Demande de deconnexion
                 else if (parsedJson[0].ToLower() == "disconnection")
                 {
-                    JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
+                    //JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
+                    device = Devices.Devices.FirstOrDefault(o => o.Name == name);
+                    CallBackAfterDeconnexion(device);
                     //--Envoi du message
 
                     //--Deconnexion de l'appareil--
 
                 }
-                addMessage = true;
-            }
-                //Demande de deconnexion
-            else if(parsedJson[0].ToLower() == "disconnection")
-            {
-                //JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
-                device = Devices.Devices.FirstOrDefault(o => o.Name == name);
-                CallBackAfterDeconnexion(device);
-                //--Envoi du message
-
-                //--Deconnexion de l'appareil--
-
             }
             catch (Exception)
             {
                 Console.WriteLine("Problem in Callbackafteranalysis in mainviewmodel");
-                addMessage = true;
             }
+        }
 
         public void CallBackAfterDeconnexion(Device clientDevice)
         {
