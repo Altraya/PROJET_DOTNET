@@ -136,7 +136,14 @@ namespace NotificationProject.ViewModel
                 file.WriteLine(DateTime.Now.ToString() + "- Message reçu : " + message);
             }*/
 
-            try
+            //Conversion et traitement et parsing d'un JSON
+            JObject jsonMessage = JSONHandler.stringToJson(message);
+            string[] parsedJson = JSONHandler.interpretation(jsonMessage);
+            Device device = new Device();
+            Boolean addMessage = false;
+            //Interprétation du JSON parsé
+            //Demande de connexion
+            if (parsedJson[0].ToLower() == "connection")
             {
 
                 //Conversion et traitement et parsing d'un JSON
@@ -174,25 +181,37 @@ namespace NotificationProject.ViewModel
                     //--Deconnexion de l'appareil--
 
                 }
-                //Reception d'un message
-                else if (parsedJson[0].ToLower() == "notification")
-                {
-                    notification.Application = parsedJson[1];
-                    notification.Message = parsedJson[2];
-                }
-
-                // -- 
+                addMessage = true;
+            }
+                //Demande de deconnexion
+            else if(parsedJson[0].ToLower() == "disconnection")
+            {
+                //JObject messageToDevice = JSONHandler.messageRetour("disconnected", parsedJson[1], parsedJson[2]);
                 device = Devices.Devices.FirstOrDefault(o => o.Name == name);
-                device.ListMessages.Add(notification);
-                CommunicationViewModel communicationViewModel = (CommunicationViewModel)PageViewModels.FirstOrDefault(o => o.Name == "Communication");
-                communicationViewModel.CommunicationStatus = message;
+                CallBackAfterDeconnexion(device);
+                //--Envoi du message
+
+                //--Deconnexion de l'appareil--
 
             }
             catch (Exception)
             {
                 Console.WriteLine("Problem in Callbackafteranalysis in mainviewmodel");
+                addMessage = true;
             }
 
+        public void CallBackAfterDeconnexion(Device clientDevice)
+        {
+            CommunicationViewModel communicationViewModel = (CommunicationViewModel)PageViewModels.FirstOrDefault(o => o.Name == "Communication");
+            communicationViewModel.CommunicationStatus = "Device déconnecté";
+            Devices.deleteDevice(clientDevice); 
+           /* CommunicationViewModel communicationViewModel = (CommunicationViewModel)PageViewModels.FirstOrDefault(o => o.Name == "Communication");
+            communicationViewModel.CommunicationStatus = "Device connecté";
+            Devices.addDevice(newDevice);
+            OnPropertyChanged("Devices");*/
+
+            //var dataAccess = new XmlAccess("./data.xml");
+            //dataAccess.saveDevice(newDevice);
         }
 
         public void CallBackAfterConnexion(String name, Socket clientDevice)
